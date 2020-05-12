@@ -1,0 +1,133 @@
+import java.io.*; 
+import java.text.*; 
+import java.util.*; 
+import java.net.*; 
+  
+// Server class 
+public class Server  
+{ 
+    public static void main(String[] args) throws IOException  
+    { 
+        // server is listening on port 5056 
+        ServerSocket serverSocket = new ServerSocket(5056); 
+          
+        // server remains open for connections
+        while (true)  
+        { 
+            Socket s = null; 
+              
+            try 
+            { 
+                // socket object to receive incoming client requests 
+                s = serverSocket.accept(); 
+                 
+                // maybe here I can check if the server has other connections or threads running...if it does not...then we want to print 
+                // System.out.println("You have been connected to play chess. Please wait until we find another player to match you with...");
+                // if it does have other connections we need to ask each player if they want to play and connect them together somehow 
+                System.out.println("A new client is connected : " + s); 
+                  
+                // obtaining input and out streams 
+                DataInputStream inputStream = new DataInputStream(s.getInputStream()); 
+                DataOutputStream outputStream = new DataOutputStream(s.getOutputStream()); 
+                  
+                System.out.println("Assigning new thread for this client"); 
+  
+                // create a thread for this new client to remain connected to the server 
+                Thread threadConnection = new ClientHandler(s, inputStream, outputStream); 
+  
+                // start the thread for this specific client 
+                threadConnection.start(); 
+                  
+            } 
+            catch (Exception e){
+            	// close the socket and print error if necessary 
+                s.close(); 
+                e.printStackTrace(); 
+            } 
+        } 
+    } // Ends Main
+    
+} // Ends Class
+
+
+
+  
+// ClientHandler class ************************************ 
+class ClientHandler extends Thread  
+{ 
+    DateFormat fordate = new SimpleDateFormat("yyyy/MM/dd"); 
+    DateFormat fortime = new SimpleDateFormat("hh:mm:ss"); 
+    final DataInputStream inputStream; 
+    final DataOutputStream outputStream; 
+    final Socket s;       
+  
+    // Constructor used by server for communication channels 
+    public ClientHandler(Socket s, DataInputStream inputStream, DataOutputStream outputStream)  
+    { 
+        this.s = s; 
+        this.inputStream = inputStream; 
+        this.outputStream = outputStream; 
+    } 
+  
+    @Override
+    public void run()  
+    { 
+        String received; 
+        String toreturn; 
+        while (true)  
+        { 
+            try { 
+  
+                // Ask user what he wants 
+                dos.writeUTF("What do you want?[Date | Time]..\n"+ 
+                            "Type Exit to terminate connection."); 
+                  
+                // receive the answer from client 
+                received = dis.readUTF(); 
+                  
+                if(received.equals("Exit")) 
+                {  
+                    System.out.println("Client " + this.s + " sends exit..."); 
+                    System.out.println("Closing this connection."); 
+                    this.s.close(); 
+                    System.out.println("Connection closed"); 
+                    break; 
+                } 
+                  
+                // creating Date object 
+                Date date = new Date(); 
+                  
+                // write on output stream based on the 
+                // answer from the client 
+                switch (received) { 
+                  
+                    case "Date" : 
+                        toreturn = fordate.format(date); 
+                        dos.writeUTF(toreturn); 
+                        break; 
+                          
+                    case "Time" : 
+                        toreturn = fortime.format(date); 
+                        dos.writeUTF(toreturn); 
+                        break; 
+                          
+                    default: 
+                        dos.writeUTF("Invalid input"); 
+                        break; 
+                } 
+            } catch (IOException e) { 
+                e.printStackTrace(); 
+            } 
+        } 
+          
+        try
+        { 
+            // closing resources 
+            this.dis.close(); 
+            this.dos.close(); 
+              
+        }catch(IOException e){ 
+            e.printStackTrace(); 
+        } 
+    } 
+} 

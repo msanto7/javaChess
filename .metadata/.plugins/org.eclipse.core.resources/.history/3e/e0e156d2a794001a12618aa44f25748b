@@ -1,0 +1,56 @@
+
+
+import java.io.*; 
+import java.net.*; 
+import java.util.Scanner; 
+  
+// Client class 
+public class Client  
+{ 
+    public static void main(String[] args) throws IOException  
+    { 
+        try
+        { 
+            Scanner input = new Scanner(System.in); 
+              
+            // getting localhost ip 
+            InetAddress ip = InetAddress.getByName("localhost"); 
+      
+            // establish the connection with server port 5056 
+            Socket s = new Socket(ip, 5056); 
+      
+            // obtaining input and out streams 
+            DataInputStream inputStream = new DataInputStream(s.getInputStream()); 
+            DataOutputStream outputStream = new DataOutputStream(s.getOutputStream()); 
+      
+            // need to interact with the handler to decide what the client wants to do when they connect 
+            while (true)  
+            { 
+                System.out.println(inputStream.readUTF()); 
+                String toSend = input.nextLine(); 
+                outputStream.writeUTF(toSend); 
+                  
+                // If client sends exit,close this connection  
+                // and then break from the while loop 
+                if(toSend.equals("Exit")) 
+                { 
+                    System.out.println("Closing this connection : " + s); 
+                    s.close(); 
+                    System.out.println("Connection closed"); 
+                    break; 
+                } 
+                  
+                // printing date or time as requested by client 
+                String received = inputStream.readUTF(); 
+                System.out.println(received); 
+            } 
+              
+            // closing resources 
+            input.close(); 
+            inputStream.close(); 
+            outputStream.close(); 
+        }catch(Exception e){ 
+            e.printStackTrace(); 
+        } 
+    } 
+} 

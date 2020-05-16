@@ -97,28 +97,6 @@ class ClientHandler implements Runnable
         while (true)  
         { 
             try { 
-  
-				/*
-				 * // Ask user what he wants outputStream.
-				 * writeUTF("Thank you for choosing chess. Type Yes to play a game. \n"+
-				 * "Type Exit to disconnect.");
-				 * 
-				 * // receive the answer from client clientInput = inputStream.readUTF();
-				 * 
-				 * if(clientInput.equals("Exit")) { System.out.println("Client " + this.s +
-				 * " sends exit..."); System.out.println("Closing this connection.");
-				 * this.s.close(); System.out.println("Connection closed"); break; }
-				 * 
-				 * // we need to figure out how to handle queuing waiting players and player
-				 * selection switch (clientInput) {
-				 * 
-				 * case "Yes" : outputStream.writeUTF("Okay lets get started "); break;
-				 * 
-				 * case "No" : outputStream.writeUTF("Okay we can wait for another player. ");
-				 * break;
-				 * 
-				 * default: outputStream.writeUTF("Invalid input"); break; }
-				 */ 
             	
             	// print to the user the list of clients that are available to play a chess game 
             	outputStream.writeUTF("Here is the list of clients you can play with: \n");            	
@@ -157,6 +135,8 @@ class ClientHandler implements Runnable
                     System.out.println(boardString);
                     
                     MsgToSend = boardString;
+                    
+                    outputStream.writeUTF("");
                 }                
   
                 // search for the recipient in the connected devices list. 
@@ -167,7 +147,7 @@ class ClientHandler implements Runnable
                     // output stream 
                     if (mc.clientName.equals(recipient) && mc.isActive == true)  
                     { 
-                        mc.outputStream.writeUTF(this.clientName+" : "+ MsgToSend); 
+                        mc.outputStream.writeUTF(MsgToSend); 
                         break; 
                     } 
                 } 
@@ -187,3 +167,33 @@ class ClientHandler implements Runnable
         } 
     } 
 } 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

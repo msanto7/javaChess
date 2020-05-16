@@ -2,7 +2,7 @@
 /* 
  * This class represents a chess piece 
  */
-public abstract class Piece {
+public class Piece {
 	
     private boolean killed = false; 
     private boolean white = false; 
@@ -32,11 +32,16 @@ public abstract class Piece {
         this.killed = killed; 
     } 
   
-    public abstract boolean canMove(Board board,  
-                                 BoardSquare start, BoardSquare end); 
+    public boolean canMove(Board board, BoardSquare start, BoardSquare end) {
+    	return true;
+    }
 	
 	
     // to string 
-	public abstract String toString();
+	//public abstract String toString();
+	
+	public String toString() {
+		return this.getClass().toString();
+	}
 
 } // Ends Class 

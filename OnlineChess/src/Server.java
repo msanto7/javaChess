@@ -37,7 +37,7 @@ public class Server {
                 System.out.println("Assigning new thread for this client"); 
                 
                 // we want to instantiate a new client handler object for this new client 
-                ClientHandler clientHandler = new ClientHandler(s, "client " + numConnectedClients, inputStream, outputStream);
+                ClientHandler clientHandler = new ClientHandler(s, "client " + numConnectedClients, inputStream, outputStream, activeClients);
   
                 // create a thread for this new client to remain connected to the server 
                 Thread threadConnection = new Thread(clientHandler);
@@ -75,15 +75,17 @@ class ClientHandler implements Runnable
     final DataOutputStream outputStream; 
     final Socket s;
     boolean isActive;
+    Vector<ClientHandler> activePlayers;
   
     // Constructor used by server for communication channels 
-    public ClientHandler(Socket s, String name, DataInputStream inputStream, DataOutputStream outputStream)  
+    public ClientHandler(Socket s, String name, DataInputStream inputStream, DataOutputStream outputStream, Vector<ClientHandler> activePlayers)  
     { 
         this.s = s; 
         this.inputStream = inputStream; 
         this.outputStream = outputStream;
         this.clientName = name;
         this.isActive = true;
+        this.activePlayers = activePlayers;
     } 
   
     @Override
@@ -118,11 +120,18 @@ class ClientHandler implements Runnable
 				 * default: outputStream.writeUTF("Invalid input"); break; }
 				 */ 
             	
+            	// print to the user the list of clients that are available to play a chess game 
+            	outputStream.writeUTF("Here is the list of clients you can play with: \n");            	
+            	for (int i = 0; i < activePlayers.size(); i++) {
+            		outputStream.writeUTF(activePlayers.get(i).clientName);
+            	}
+            	outputStream.writeUTF("To start a game type ('play#client [insert client number]') \n");   
+            	
             	// receive the string 
-                clientInput = inputStream.readUTF(); 
-                  
-                System.out.println(clientInput); 
-                  
+                clientInput = inputStream.readUTF();                   
+                System.out.println(clientInput);                                 
+                
+                // allow the player to log off and close their connection with the server when desired 
                 if(clientInput.equals("logout")){ 
                     this.isActive = false; 
                     this.s.close(); 
@@ -132,7 +141,23 @@ class ClientHandler implements Runnable
                 // break the string into message and recipient part 
                 StringTokenizer st = new StringTokenizer(clientInput, "#"); 
                 String MsgToSend = st.nextToken(); 
-                String recipient = st.nextToken(); 
+                String recipient = st.nextToken();
+                
+                // start a game with the selected player by creating the game object and printing out the board 
+                // p1 will be the player that starts the game
+                // p2 will just use there handler to communicate back and forth the moves I suppose 
+                if (MsgToSend.contentEquals("play")) {
+                	Player p1 = new Player("this", true);
+                    Player p2 = new Player(recipient, false);
+                    Game currentGame = new Game();
+                    currentGame.initialize(p1, p2);
+                    String boardString = currentGame.board.printBoard();
+                    
+                    // Send the board to both players 
+                    System.out.println(boardString);
+                    
+                    MsgToSend = boardString;
+                }                
   
                 // search for the recipient in the connected devices list. 
                 // ar is the vector storing client of active users 
@@ -142,7 +167,7 @@ class ClientHandler implements Runnable
                     // output stream 
                     if (mc.clientName.equals(recipient) && mc.isActive == true)  
                     { 
-                        mc.outputStream.writeUTF(this.clientName+" : "+MsgToSend); 
+                        mc.outputStream.writeUTF(this.clientName+" : "+ MsgToSend); 
                         break; 
                     } 
                 } 

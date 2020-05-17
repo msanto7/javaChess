@@ -8,8 +8,7 @@ public class Move {
 	    private BoardSquare start; 
 	    private BoardSquare end; 
 	    private Piece pieceMoved; 
-	    private Piece pieceKilled; 
-	    private boolean castlingMove = false; 
+	    private Piece pieceKilled;
 	  
 	    public Move(Player player, BoardSquare start, BoardSquare end) 
 	    { 

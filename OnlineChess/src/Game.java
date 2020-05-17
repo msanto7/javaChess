@@ -7,7 +7,7 @@ import java.util.List;
 public class Game { 
 	
 	// properties 
-    private Player[] players = new Player[2]; 
+    Player[] players = new Player[2]; 
     public Board board = new Board(); 
     private Player currentTurn; 
     private GameStatus status; 
@@ -51,7 +51,7 @@ public class Game {
                                 int startY, int endX, int endY) throws Exception 
     { 
         BoardSquare startBox = board.getBox(startX, startY); 
-        BoardSquare endBox = board.getBox(startY, endY); 
+        BoardSquare endBox = board.getBox(endX, endY); 
         Move move = new Move(player, startBox, endBox); 
         return this.makeMove(move, player); 
     } 
@@ -78,29 +78,21 @@ public class Game {
             return false; 
         } 
   
-        // kill? 
-        Piece destPiece = move.getStart().getPiece(); 
-        if (destPiece != null) { 
-            destPiece.setKilled(true); 
-            //move.setPieceKilled(destPiece); 
-        } 
-
+        // update the actual square with the new piece 
+        // and the ending square should now be of the piece type that the old one was previously 
+        board.squares[move.getEnd().file][move.getEnd().rank].piece = board.squares[move.getStart().file][move.getStart().rank].piece;
+        // the starting square should now be empty
+        board.squares[move.getStart().file][move.getStart().rank] = new BoardSquare(move.getStart().file, move.getStart().rank, new EmptySquare(false));
+        
   
-        // store the move 
-        movesPlayed.add(move); 
-  
-        // move piece from the stat box to end box 
-        move.getEnd().setPiece(move.getStart().getPiece()); 
-        move.getStart().setPiece(null); 
-  
-        if (destPiece != null && destPiece instanceof King) { 
-            if (player.isWhiteSide()) { 
-                this.setStatus(GameStatus.WHITE_WIN); 
-            } 
-            else { 
-                this.setStatus(GameStatus.BLACK_WIN); 
-            } 
-        } 
+//        if (destPiece != null && destPiece instanceof King) { 
+//            if (player.isWhiteSide()) { 
+//                this.setStatus(GameStatus.WHITE_WIN); 
+//            } 
+//            else { 
+//                this.setStatus(GameStatus.BLACK_WIN); 
+//            } 
+//        } 
   
         // set the current turn to the other player 
         if (this.currentTurn == players[0]) { 

@@ -10,11 +10,7 @@ public class Pawn extends Piece {
 	}
 	
 	@Override
-	public boolean canMove(Board board, BoardSquare start, BoardSquare end) {
-		
-		if (end.getPiece().isWhite() == this.isWhite()) {
-			return false;
-		}		
+	public boolean canMove(Board board, BoardSquare start, BoardSquare end) {	
 		
 		// just return true for now and sort logic later
 		return true;
